@@ -1,0 +1,18 @@
+21 - 2f
+3A - 40
+5b - 60
+7b - 7e
+
+^ special
+
+
+41 - 5A
+caps
+
+61 - 7a 
+small
+
+0 - 9
+number
+
+

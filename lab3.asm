@@ -1,0 +1,106 @@
+TITLE CONDITIONAL STATEMENTS AND JMP (.EXE MODEL/FORMAT)
+;---------------------------------------------
+STACKSEG SEGMENT PARA 'Stack'
+STACKSEG ENDS
+;---------------------------------------------
+DATASEG SEGMENT PARA 'Data'
+	QUESTION1 DB "> Enter character: $"
+
+  CHAR_REF1 DB "A", "$"
+  CHAR_REF2 DB "Z", "$"
+  CHAR_REF3 DB "a", "$"
+  CHAR_REF4 DB "z", "$"
+  CHAR_REF5 DB "0", "$"
+  CHAR_REF6 DB "9", "$"
+  INPUT1 DB ?,0ah, 0dh,"$"
+  
+  STRING_SPECIAL DB "Special Character$"
+  STRING_DIGIT DB "Digit$"
+  STRING_UPPERCASE DB "Uppercase Letter$"
+  STRING_LOWERCASE DB "Lowercase Letter$"
+DATASEG ENDS
+;---------------------------------------------
+CODESEG SEGMENT PARA 'Code'
+  ASSUME SS:STACKSEG, DS:DATASEG, CS:CODESEG
+START:
+  ;set DS correctly
+  MOV AX, DATASEG
+  MOV DS, AX
+
+  ;print
+	MOV AH, 09
+	LEA DX, QUESTION1
+	INT 21H
+  
+  ;get char input
+  MOV AH, 10H
+  INT 16H
+  MOV INPUT1, AL
+
+  ;display input
+  MOV AH, 09
+  LEA DX, INPUT1
+  INT 21H
+
+  ;comparison
+  CMP AL, CHAR_REF5
+  JAE CHECK_NUM
+  JB PRINT_SPECIAL
+  
+  CHECK_NUM:
+  CMP AL, CHAR_REF6
+  JA CHECK_SMALL
+  JBE PRINT_DIGIT
+  
+  CHECK_SMALL:
+  CMP AL, CHAR_REF3
+  JAE CHECK_SMALL2
+  JB CHECK_CAPS
+  
+  CHECK_CAPS:
+  CMP AL, CHAR_REF1
+  JAE CHECK_CAPS2
+  JB PRINT_SPECIAL
+  
+  CHECK_SMALL2:
+  CMP AL, CHAR_REF4
+  JA PRINT_SPECIAL
+  JBE PRINT_SMALL
+  
+  CHECK_CAPS2:
+  CMP AL, CHAR_REF2
+  JA PRINT_SPECIAL
+  JBE PRINT_CAPS
+  
+  PRINT_CAPS:
+  MOV AH, 09
+  LEA DX, STRING_UPPERCASE
+  INT 21H
+
+  JMP EXIT
+  
+  PRINT_DIGIT:
+  MOV AH, 09
+  LEA DX, STRING_DIGIT
+  INT 21H
+
+  JMP EXIT
+  
+  PRINT_SMALL:
+  MOV AH, 09
+  LEA DX, STRING_LOWERCASE
+  INT 21H
+
+  JMP EXIT
+  
+  PRINT_SPECIAL:
+  MOV AH, 09
+  LEA DX, STRING_SPECIAL
+  INT 21H
+  
+  EXIT:
+  ;return/terminate/exit
+  MOV AH, 4CH
+  INT 21H
+CODESEG ENDS
+END START
